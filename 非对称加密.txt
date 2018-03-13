@@ -1,0 +1,52 @@
+	非对称加密算法
+1：高级
+2：双保险
+3：公钥/私钥
+	a.DH（diffie-hellman）密钥交换算法
+	b.RSA-基于因子分解
+	c.ElGamal-基于离散对数
+	d.ECC
+
+非对称加密算法-DH（密钥交换算法）
+1.数据安全
+2.密钥管理复杂
+对称加密带来的困扰
+构建本地密钥
+对称
+   一：初始化发送方密钥
+   --KeyPairGenerator
+   --KeyPair
+   --PublicKey
+   二：初始化接收方密钥
+   --KeyFactory
+   --X509EncodeKeySpec
+   --DHPublicKey
+   --DHParameterSpec
+   --KeyPairGenerator
+   --PrivateKey
+   三：密钥构建
+   --KeyAgreement
+   --SecretKey
+   --KeyFactory
+   --X509EncodeKeySpec
+   --PublicKey
+   四：加密/解密
+   --Cipher
+   		1.构建发送方密钥
+   		2.公布发送方密钥
+   		3.使用发送方密钥构建自己的密钥
+   		4.公布接收者公钥
+   		    初始化DH算法密钥对
+   		1.使用本地密钥加密消息
+   		2.发送加密消息
+   		3.使用本地密钥解密消息
+   			DH算法加密消息传递
+
+非对称加密算法-RSA
+1.唯一广泛接受并实现
+2.数据加密&数字签名
+3.公钥加密,私钥解密
+4.私钥加密,公钥解密
+	1.使用私钥加密数据
+	2.发送加密数据
+	3.使用公钥解密数据

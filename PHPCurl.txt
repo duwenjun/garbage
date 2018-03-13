@@ -1,0 +1,63 @@
+			PHP-理解和使用cURL
+1.cURL的概念
+2.cURL的使用场景
+3.在PHP中使用cURL
+4.cURL实战
+
+cURL的概念
+cURL（Client URL library Functions）由Daniel Stenberg创建
+官方定义为：curl is a command line tool for transferring data with URL syntax,即使用URL语法传输数据的命令行工具
+	cURL是客户端向服务器请求资源的工具
+
+cURL的使用场景
+	1.网页资源
+		a.编写网页爬虫
+	2.WebService数据接口资源
+		a.动态获取接口数据，比如天气，好吗归属地等等
+	3.FTP服务器里面的文件资源
+		a.下载FTP服务器里面的文件
+	4.其他资源
+		a.所有网络上的资源都可以用cURL访问到
+在PHP中使用cURL
+	在windows确认   cmd窗口， php -i 查看php设置  搜索cURL
+	Linux     php -i |grep  cURL
+	如果没有则添加cURL扩展
+
+使用cURL步骤
+1.初始化cURL       curl_init();
+2.向服务器发送请求 curl_exec();
+3.接收服务器数据   curl_exec();
+4.关闭cURL 	   curl_close();
+
+cURL实战
+1.用cURL做一个简单的网页爬虫
+2.用cURL获取天气信息
+3.用cURL操作FTP服务器中的数据
+4.用cURL访问HTTPS资源
+
+1.简单操作
+<?php
+	$curl = curl_init("http://www.baidu.com");
+	curl_exec($curl);
+	curl_close($curl);
+
+windows 命令行使用
+	cd到当盘的文件目录
+	php -f crawler01.php > baidu.html就会保存到当前目录的baidu.html文件里面
+
+2.下载之后在替换掉里面的部分内容
+<?php
+	$curlobj = curl_init();
+	curl_setopt($curlobj,CURLOPT_UTL,"http://www.baidu.com");
+	curl_setopt($curlobj,CURLOPT_RETUPNTRANSFER,true);
+	执行之后不直接打印出来
+	$output = curl_exec($curlobj); //执行
+	curl_close($curlobj);  //关闭cURL
+	echo str_replace("百度","屌丝",$output);
+
+
+
+
+
+
+

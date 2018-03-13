@@ -1,0 +1,63 @@
+//这是针对于centos6.5,php 5.4
+wget https://github.com/facebook/xhprof/archive/master.zip
+unzip master.zip
+cd xhprof-master/extension/
+phpize
+./configure
+make
+make install
+
+2、配置
+ 在php.ini文件中，添加如下配置：
+[xhprof]  
+extension=xhprof.so;  
+; directory used by default implementation of the iXHProfRuns  
+; interface (namely, the XHProfRuns_Default class) for storing  
+; XHProf runs.  
+;  
+;xhprof.output_dir=<directory_for_storing_xhprof_runs>  
+xhprof.output_dir=/tmp/xhprof  
+//需要创建xhprof目录，并且权限为777
+
+重启下php，就可以在使用xhprof了。
+  3、拷贝文件
+
+       把xhprof-0.9.2目录下的目录xhprof_html 和 xhprof_lib 下的所有文件拷贝到你网站的主目录下，假设网站主目录：/opt/wordpress
+
+[root@localhost xhprof-0.9.2]# cp -R xhprof_* /opt/wordpress  
+
+<?php
+//cpu: XHPROF_FLAGS_CPU
+//内存： XHPROF_FLAGS_MEMORY
+//如果都监控用XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY
+xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
+
+//需要性能分析的php代码
+
+//define('WP_USE_THEMES', true);
+
+
+//require('./wp-blog-header.php');
+
+//停止性能分析
+$data = xhprof_disable(); 
+
+
+//显示性能分析数据
+include_once "xhprof_lib/utils/xhprof_lib.php"; 
+include_once "xhprof_lib/utils/xhprof_runs.php"; 
+$objXhprofRun = new XHProfRuns_Default(); 
+
+//第一个参数 是xhprof_disable()的返回值
+//第二个参数 是自定义命名空间字符串 
+//返回运行id，用这个id查看相关运行结果
+$run_id = $objXhprofRun->save_run($data, "xhprof");
+ 
+//查看运行结果的url
+//run的值来源于save_run的返回值
+//source值来源于save_run的第二个参数                                 
+//www.abc.com 需要用自己的域名替换
+echo "http://www.abc.com/xhprof_html/index.php?run=".$run_id."&source=xhprof";
+
+看图需要安装graphviz
+yum install -y graphviz

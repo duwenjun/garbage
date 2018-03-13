@@ -1,0 +1,37 @@
+使用serialize()方法序列化表单元素值
+使用serialize()方法可以将表单中有name属性的元素值进行序列化，生成标准URL编码文本字符串，直接可用于ajax请求，它的调用格式如下：
+$(selector).serialize()
+其中selector参数是一个或多个表单中的元素或表单元素本身。
+例如，在表单中添加多个元素，点击“序列化”按钮后，调用serialize()方法，将表单元素序列化后的标准URL编码文本字符串显示在页面中
+	$(function () {
+            $("#btnAction").bind("click", function () {
+            $("#litest").html($("form").serialize());
+            })
+        })
+
+使用ajaxSetup设置ajax全局属性案例
+	 <script type="text/javascript">
+        $(function () {
+            $.ajaxSetup({
+                dataType:"text",
+                success:function(data){
+                    $("ul").append("<li>你输入的<b>  "
+                        + $("#txtNumber").val() + " </b>是<b> "
+                        + data + " </b></li>");
+                }
+            });
+            $("#btnShow_1").bind("click", function () {
+                $.ajax({
+                    data: { num: $("#txtNumber").val() },
+                    url: "http://www.imooc.com/data/check.php"
+                });
+            })
+            $("#btnShow_2").bind("click", function () {
+                $.ajax({
+                    data: { num: $("#txtNumber").val() },
+                    url: "http://www.imooc.com/data/check_f.php"
+                });
+            })
+        });
+    </script>
+

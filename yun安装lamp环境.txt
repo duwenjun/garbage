@@ -1,0 +1,24 @@
+安装Apahce, PHP, Mysql, 以及php连接mysql库组件
+
+[root@linux ~]#yum -y install httpd php mysql mysql-server php-mysql
+//安装mysql扩展
+[root@linux ~]#yum -y install mysql-connector-odbc mysql-devel libdbi-dbd-mysql
+//安装php的扩展
+[root@linux ~]# yum -y install php-gd php-xml php-mbstring php-ldap php-pear php-xmlrpc
+//安装apache扩展
+[root@linux ~]#yum -y install httpd-manual mod_ssl mod_perl mod_auth_mysql
+//一次性粘贴安装:
+[root@linux ~]# yum -y install httpd php mysql mysql-server php-mysql httpd-manual mod_ssl mod_perl mod_auth_mysql php-mcrypt php-gd php-xml php-mbstring php-ldap php-pear php-xmlrpc mysql-connector-odbc mysql-devel libdbi-dbd-mysql
+
+3. 启动服务配置
+[root@linux ~]# /sbin/chkconfig httpd on [设置apache为自启动]
+[root@linux ~]# /sbin/chkconfig –add mysqld [mysql服务]
+[root@linux ~]# /sbin/chkconfig mysqld on [mysqld服务]
+[root@linux ~]# /sbin/service httpd start [自启动 httpd 服务]
+[root@linux ~]# /sbin/service mysqld start [自启动mysqld服务]
+
+4.设置mysql数据库root帐号密码。
+[root@linux ~]# mysqladmin -u root password ‘zhangjunbao’    [引号内填密码]
+[root@linux ~]# mysql -u root -p               ← 通过空密码用root登录
+Enter password:zhangjunbao ← 在这里输入密码
+GRANT ALL PRIVILEGES ON *.* TO '用户名'@'%' IDENTIFIED BY '密码' WITH GRANT OPTION;  //添加远程连接账户

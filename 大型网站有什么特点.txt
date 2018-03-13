@@ -1,0 +1,59 @@
+大型网站有什么特点
+1.高并发，大流量： Google日均pv 35亿
+2.高可用：系统7*24小时不间断的服务
+3.海量数据：淘宝有15亿件商品
+4.迭代需求
+
+	大型网站核心架构要素
+	高性能
+		缓存
+		并行访问
+		。。。
+	高可用
+		负载均衡
+		自动修复
+		双机互备
+		。。。
+	高可扩展性
+		分割性
+		。。。
+
+
+常见的性能测试工具体系架构的
+	ab
+	JMeter
+	LoadRunner:一种适用于各种
+
+
+网站优化
+	减少http请求
+	使用浏览器缓存
+	启用内容压缩
+	减少Cookie的传输
+	CSS放在页面最上面
+	JS放在页面最下面
+
+	YSLOW插件
+
+
+减少大型网站的核心思想
+1.分而治之，分时根本
+2.缓存
+
+
+Linux防火墙关闭  CentOS
+暂时关闭   service iptables stop
+永久关闭   chkconfig iptables off
+查看状态   chkconfig iptables --list
+Linux主机名  CentOS
+hostname
+修改主机名： 
+vi /etc/sysconfig/network
+vi /etc/hosts
+
+设置ip地址。注意如果要联网要使用自动获取ip模式
+DEVICE=eth0
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=dhcp

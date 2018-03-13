@@ -1,0 +1,193 @@
+	MySql数据库优化
+数据库优化的目的
+	避免出现页面访问错误
+	1.由于数据库连接timeout产生页面5xx错误
+	2.由于慢查询造成页面无法加载
+	3.由于阻塞造成数据无法提交
+	增加数据库的稳定性
+	1.很多数据库问题都是由于低效的查询引起的
+	优化用户体验
+	1.流畅页面的访问速度
+	2.良好的网站的功能体验
+可以从几个方面进行数据库优化
+硬件   系统配置    数据库表结构    sql及索引
+效果   低->高
+成本   高->低
+
+sql及索引优化
+	如何发现有问题的SQL？
+	使用mysql慢查日志对有效率问题的sql进行监控
+	show varivbles like 'slow_query_log'  //查看是否开启慢查询日志
+	set global slow_query_log=on    //开启慢查询日志
+	set global slow_query_log_file='/home/mysql/sql_log/mysql_slow.log' //设置日志记录位置
+	set global log_queries_not_using_indexes=on;  //把没有索引的sql记录进日志
+	set global long_query_time=1   //设置查询时间为1秒的sql进入日志
+
+	慢查日志所包含的内容
+	执行sql的主机信息
+	#user@host:root[root]  @localhost[]
+	sql的执行信息
+	Query_time:0.000024 locak_time:0.0000 Rows_sent:0 Rows_examined:0
+	sql的执行时间
+	SET timestamp=12345234t5;
+	sql的内容
+	select CONCAT('storage engine:',@@storage_engine) as INFO;
+
+分析慢查日志工具
+1： mysqldumpslow
+mysqldumpslow -h //mysql自带的工具，	
+mysqldumpslow -t 3 /满查询日志     //按时间排序分析慢查询日志，取前三条
+2： pt-query-digest
+     输出到文件
+	pt-query-digest slow-log >slow_log.report
+     输出到数据库表
+	pt-query-digest slow.log -review \ h=127.0.0.1,D=test,p=root,p=3306,u=root,t=query_review /--create-reviewtable \-review-history t=hostname_slow
+     如何通过慢查日志发现有问题的sql
+	1.查询次数多且每次查询占用时间长的sql	
+	通常为pt-query-digest分析的前几个查询
+	2.IO大的sql
+	注意pt-query-digest分析中的Rows examine项
+	3.未命中索引的SQL
+	主要pt-query-digest分析中Rows examine和Rows Send 的对比	
+
+如何分析SQL查询
+	explain返回各列的含义
+	table：显示着一行的数据是关于哪张表的
+	type:这是重要的列，显示连接链接使用了何种类型，从最好到最差的链接类型为const.eq_reg,ref,range,index和ALL
+
+
+Count()和Max()的优化方法
+	在一条SQL中同时查出2006年和2007年电影数量的--优化Count()函数
+	正确的方式：
+	SELECT COUNT（release_year='2006' OR NULL）AS '2006年电影数量',COUNT(release_year='2007' OR NULL)AS '2007年电影数量' FROM film
+
+子查询的优化
+	通常情况下，需要把子查询优化为join查询，但在优化时要注意关联键是否有一对多的关系，要注意重复数据
+select t.id from t join t1 on t.id=t1.tid;
+	如果有重复的值需要用distinct函数去除重复的值
+优化group by查询
+	explain SELECT actor.first_name,actor.last_name,count(*) FROM sakila.film
+.....
+优化Limit查询
+	limit常用与分页处理，时常会伴随order by从句使用，因此大多时候会使用Filesorts这样会造成大量IO问题
+	优化步骤1：使用有索引的列或主键进行order by 操作
+	SELECT film_id,description FROM sakila.film ORDER BY film_id LIMET 50,5;
+	优化步骤2：记录上次返回的主键，在下次查询时使用主键过滤
+	SELECT film_id,description FROM sakila.film WHERE film_id > 55 and film_id <=60 ORDER BY film_id LIMIT 1,5;
+	如此避免了数据量大时扫描过多的记录
+
+SQL及索引优化
+	如何选择合适的列建立索引？
+	1.在where从句，group by从句，order by从句，on从句中出现的列
+	2.索引字段越小越好
+	3.离散度大的列放到联合索引的前面
+	SELECT * FROM payment WHERE staff_id =2 AND customer_id = 584；
+	是index(sftaff_id,customer_id)好？还是index(customer_id,staff_id)好？
+	由于customer_id的离散度更大，索引应该使用index(customer_id,staff_id)
+
+	索引的维护及优化---重复及冗余索引
+	    重复索引是指相同的列以相同的顺序建立的同类型的索引，如下表中primary key和ID列上的所有就是重复索引
+	重复create table test(
+	id int not null primary key auto_increment,
+	name varchar(10) not null,
+	title varchar(10) not null,
+	unique(id)
+	)engine=innodb;
+	冗余create table test(
+	id int not null primary key auto_increment,
+	name varchar(10) not null,
+	title varchar(10) not null,
+	key(name,id)
+	)engine=innodb;
+	
+删除不用的索引
+选择合适的数据类型
+	数据类型的选择，重点在于适合两字，如何确定选择的类型是否适合？
+	1.使用可以存下你的数据的最小的数据类型
+	2.使用简单的数据类型，int要比varcahr类型在mysql处理上简单
+	3.尽可能的使用not null定义字段
+	4.尽量少用text类型，非用不可时最好考虑分表
+	使用int在存储日期时间。利用FROM_UNIXTIME(),UNIX_TIMESTAMP()两个函数来进行转换
+	CREATE TABLE test(id INT AUTO_INCREMENT NOT NULL,timestr INT,PRIMARY KEY(id));
+	INSERT INTO test(timestr) VALUES(UNIX_TIMESTAMP('2014-06-01 13:12:00'));
+	SELECT FROM_UNIXTIME(timestr) FROM test;
+	使用bigint来IP地址，利用INET_ATON(),INET_NTOA()两个函数来进行转换
+	CREATE TABLE sessions(id INT AUTO_INCREMENT NOT NULL ,ipaddress BIGINT,PRIMARY KEY(id));
+	INSERT INTO sessions(ipaddress) VALUES (INET_ATON('192.168.0.1'));
+	SELECT INET_NTOA(ipaddress) FROM sessions;
+	
+	表的范式化和反范式化
+		范式化是指数据库设计的规范，目前说到范式化一般是指第三设计范式，也就是要求数据表中不存在非关键字段对任意候选关键字段的传递函数依赖则符合第三范式。
+		存在以下传递函数依赖关系：
+		(商品名称)->（分类）->(分类描述)
+		也就是说存在非关键字段"分类描述"对关键字段"商品名称"的传递函数依赖
+	不符合第三范式要求的表存在下列问题：
+	1.数据冗余:(分类，分类描述)对于每一个商品都会进行记录，
+	2.数据的插入异常
+	3.数据的更新异常
+	4.数据的删除异常
+	表的范式化和反范式化
+		饭范式化是指为了查询效率的考虑吧原本符合第三范式的表适当的增加冗余，以达到优化查询效率的目的，反范式化是一种以空间来换取时间的操作。
+		比如订单表中增加用户名  等等。。。
+	表的垂直拆分
+		所谓的垂直拆分，就是把原来一个有很多列的表拆分成多个表，这解决了表的宽度问题。通常垂直拆分可以按以下原则进行：
+		1.把不常用的字段单独存放到一个表中。
+		2.把大字段独立存放到一个表中
+		3.把经常一起使用的字段放到一起
+	表的水平拆分
+		表的水平拆分是为了解决表的数据量过大的问题，水平拆分的表每一个表的结构都是完全一致的。
+		常用的水平拆分方法为：
+		1.对customer_id进行hash运算，如果要拆分成5个表则使用mod(customer_id,5)取出0-4个值
+		2.针对不同的hashID把数据存到不同的表中
+		挑战：
+		1.跨分区表进行数据查询
+		2.统计及后台报表操作
+	操作系统配置优化
+		数据库是基于操作系统的，目前大多数MYSQL都是安装在Linux系统之上，所以对于操作系统的一些参数配置也会影响到mysql的性能，下面就列出了一些常用的系统配置
+		网络方面的配置，要修改/ect/sysctl.conf文件
+		增加tcp支持的队列数
+		net.ipv4.tcp_max_syn_backlog = 65535
+		减少断开链接时，资源回收
+		net.ipv4.tcp_max_tw_buckets = 8000
+		net.ipv4.ctp_tw_reuse =1 
+		net.ipv4.ctp_tw_recycle =1
+		net.ipv4.ctp_fin_timeout =10  
+		打开文件数的限制，可以使用ulimit -a查看目录的各位限制，可以修改/ect/security/limits.conf文件，增加以下内容以修改打开文件数量的限制
+		*soft nofile 65535
+		*hard nofile 65535
+		除此之外最好在MySQL服务器上关闭tptables,selinux等防火墙软件
+	MySQL配置文件
+		mysql可以通过启动时指定配置参数和使用配置文件两种方法进行配置，在大多数情况下配置文件位于/etc/my.cof或是/ect/mysql/mycof在windows
+	系统配置文件可以是位于C:/windows/my.ini文件，mysql查找配置文件的顺序可以通过以下方法获得
+		$ /usr/sbin/mysqld --verbose --help | grep -A 1 'Default options'
+		注意：如果存在多个位置存在配置文件，则后面会覆盖前面的
+	MYSQL配置文件--常用参数说明
+		innodb_buffer_pool_size
+		非常重要的一个参数，用于配置Innodb的缓冲池如果数据库中只有Inonodb表，则推荐配置两为总内存的75%
+		
+		innodb_buffer_pool_instances
+		mysql5.5中新增加参数，可以控制缓冲池的个数，默认情况下只有一个缓冲池
+		innodb_log_buffer_size
+		innodb log 缓冲的大小，由于日志最长每秒钟就会刷新一次，用处不大
+		innodb_flush_log_at_trx_commit
+		关键参数，对innodb的IO效率影响很大，默认值为1，可以取012三个值，一般建议为2，但如果数据安全性要求比较高则使用默认值1.
+		innodb_read_io_threads
+		innodb_write_io_trreads
+		以上两个参数决定了innodb读写I0进程数，默认为4
+		innodb_file_per_table
+		关键参数，控制innodb每一个表使用独立的表空间，默认为OFF，也就是所有表都会建立在共享表空间中
+		inodb_tatts_on_metadata
+		决定了mysql在什么情况下会刷新innodb表的统计信息 设置为off
+	系统配置优化
+		第三方配置工具
+		Percon Configuration Wizard
+		https://tools.percona.com/wiard
+	服务器硬件优化
+		如何选择CPU
+		思考：是选择单核更快的CPU还是选择核数更多的CPU？
+		1.mysql有一些工作只能使用到单核CPU
+		Replicate,sql
+		建议用单核频率高的CPU
+		2.mysql对CPU和数的支持并不是很好
+		最高不能超过32核
+		

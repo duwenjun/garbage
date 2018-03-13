@@ -1,0 +1,433 @@
+MVC简介
+    书面的解释
+    MVC全名是Model View
+Controller,是模型（model）视图（view）控制器（controller）的缩写
+，一种软件设计典范，用一种业务逻辑和数据显示分离的方法组织代码，讲业务逻辑被聚集到一个部件里面，在界面和用户围绕数据的交互能被改进和个性化定制的同时而不需要重新编写业务逻辑。
+
+    学习MVC的目的
+
+1.快速上手各大主流php框架，例如yii框架，thinkphp，ci等
+2.快速适应多数公司的web开发需求
+3.逐步解除和了解web系统架构的知识，为日后成为系统架构的中坚力量做准备。
+
+MVC解决的问题
+	在PHP还不支持面向对象之前，过程化的方式来创建的。他们将数据库查询语句这样的数据层代码和想HTML这样的表示层代码混在一起。这样编写出来的程序代码十分的混乱。
+MVC的优势
+1.各司其职，互不干扰，有利于开发中的分工：MVC的三个层
+2.有利于代码的重用： 视图界面 文章显示，博客显示，论坛显示
+
+MVC全名是Model View Controller,是模型，视图，控制器的缩写
+视图：我们能直观的看到的web界面
+控制器：向系统发出指令的工具和帮手
+模型：暂且这么解释为：模型的工作室按要求从数据库取出数据。
+
+MVC工作流程
+第一步： 浏览者-> 调用控制器，对他发出指令
+第二步： 控制器->按指令选取一个合适的模型
+第三步： 模型->按控制器指令取相应数据
+第四步： 控制器->按指令选取相应视图
+第五步： 视图->把第三步取到的数据按用户想要的样子显示出来
+
+入口程序
+    在网上经常被称为单一入口机制，单一入口指在一个web应用程序中，所有的请求都是指向一个脚本文件，例如我们经常看到某一个网站所有的页面都是index.php?xxx这样的形式，所有对使用程序的访问都是必须通过这个入口。
+
+建立一个控制器调用函数C
+<?php
+	function C($name,$method){
+	require_once('libs/Controller/'.$name.'Controller.class.php');
+	eval('$obj = new '.$name.'Controller();$obj ->'.$method.'();');	
+	
+	}
+	eval()函数调用简单但是不安全
+	可用下面代码代替：
+	$controller = $name.'controller';
+	$obj = new $controller();
+	$boj -> $method();
+
+?>
+建立一个模型调用函数M
+<?php
+    function M($name){
+	require_once('libs/Model/'.$name.'model.class.php');
+	eval('$obj = new '.$name.'Model();');
+	return $obj;	
+		eval()函数调用简单但是不安全
+	可用下面代码代替：
+	$Model = $name.'Model';
+	$obj = new $Model();
+	return $obj;
+    }
+?>
+
+建立一个视图调用函数V
+<?php
+    function ($name){
+	require_once('libs/View/'.$name.'View.class.php');
+	eval('$obj = new '.$name.'View();');
+	return $obj;	
+	eval()函数调用简单但是不安全
+	可用下面代码代替：
+	$View = $name.'View';
+	$obj = new $View();
+	return $obj;
+    }
+?>
+
+单一入口文件的改造与功能总结：
+1.统一入口文件为首的Url格式
+2.在入口文件里使用安全的方式接口传递来的控制器名和方法名
+<?php
+	//url形式    index.php?controller=控制器名&method=方法名
+	require_once('function..php');
+	$controllerAllow = array('test','index');
+	$methodAllow = array('test','index','show');
+	$controller = in_array($_GET['controller'],$controllerAllow) ?
+daddslasher($_GET['controller']) :'index';
+	$method = in_array($_GET['method'],$methodAllow) ?
+daddslashes($_GET['method']) : 'index';
+	$controller = $_GET['controller'];
+	$method = $_GET['method'];
+	C($controller, $method);
+?>
+ 常用视图引擎的介绍
+1.视图引擎的作用是什么
+分离html代码和php程序
+2.什么事好的视图引擎
+	1.基于该引擎开发出的模板要更贴近标准的html等
+	2.语法简单易懂
+	3.良好的缓冲机制
+	4.扩展性良好
+	5.网络资源多
+3.市面上常见视图引擎 "Smarty,PHPLIB";
+1.什么是smarty
+2.smarty的好处
+     逻辑和视图的分离
+3.官网地址及下载地址
+	官网地址http:www.smarty.net
+	下载地址http://www.smarty.net/download
+	Smarty 3.1.17[Smarty-stable.zip]Dec 17th,2014
+
+Smarty的引入.配置与实例制作
+1.Smarty的引入与实例化
+2.Smarty的自编口诀“五配置两方法”
+3.引导对smarty demo实例的学习
+
+Smarty基本语法
+注释与变量输出
+1.养成写注释的好习惯 {* 这里是注释语句 *}
+2.如何在smarty里面输出赋值进来的变量
+(1) 变量是字符串，变量是数组的情况
+(2)变量是对象的情况
+2.变量调节器
+(1)首字母大写capitalize
+实例:{$articleTitle|capitalize}
+(2)字符串连接   cat
+实例{$articleTitle|cat:'yesterday'}
+(3)日期格式化 date_format
+示例：{$yesterday|date_format}
+      {$yesterday|date_format:":" %A,%B,$e,$Y %H:$M:$S}
+(4)为为赋值或为空的变量指定默认值default
+(5)转码 escape
+	用于html转码，url转码，在没有转码的变量上转换单引号，十六进制转码，十六进制美化，或者javascript转码，默认是html转码
+(6)小写lower 大写upper
+    将变量字符串小(大)写
+	示例{$articleTitle|lower}{$articleTitle|upper}
+(7)所有的换行符都将被替换成<br />nl2br功能同PHP中的nl2br()函数一样
+	实例{$articeTitle|nl2br}
+(8)其他的函数
+	可以参见手册，原则上应该通过php直接处理完再赋值到smarty变量里，少用smarty函数
+	
+Smarty条件判断
+1.基本句式
+{if $name eq 'Fred'}
+	Welcome Sir
+{elseif $name eq 'Wilma'}
+	welcome Maiam
+{else}
+	welcome ,whatever you are
+{/if}
+2.条件修饰符有很多，请记得简单的几个 eq(==) neq(!=) gt(>) lt(<)
+3.修饰符词必须和变量或常量用空格开
+
+3.Smarty的循环 section
+1.section ，sectionelse
+    功能多，参数多，单个人感觉不实用，是smarty用来做循环操作的函数之一。
+2.看演示，了解基本属性name和loop
+3.除了name和loop属性外，还有以下属性
+{section name=article loop=$articlelist}
+	{$articlelist[article].title}
+	{$articlelist[article].author}
+	{$articlelist[article].content}
+<br/>
+{/selction}
+
+foreach
+{foreach item=article from=$articlelist}||{foreach $articlelist as article}
+	{$article.title}
+	{$article.author}
+	{$article.content}
+<br/>
+{foreachelse}
+当前没有文章
+{/foreach}
+ Smarty模板的引用
+1.include用法和php里的include差不多
+2.smarty的include还具备自定义属性的功能
+例如{include file="header.tpl" title="网站标题" table_bgcolor="#c0c0c0c"}
+Smarty类与对象的赋值与使用
+类的调用方法：
+第一种是用smary的register_object方法，在smarty3里已经废除
+第二种方法就是使用assign把一个类的对象以变量形式赋值到smarty模板里使用。
+使用php内置函数和自定义函数
+1.可以使用php内置函数
+{'Y-m-d'|date:$time}
+2.可以自定义函数，并用registerPlugin注册到smarty模板里使用。
+	registerPlugin的第一个参数除了function，还有modifier。block等，下面再smarty的插件制作会详细讲到
+除了这两个方法之外，还有一个方法就是自定义插件。
+自定义函数
+	function test($params){
+	     $p1 = $params['p1'];
+	     $p2 = $params['p2'];
+	     return '传入的参数1值为'.$p1.',传入的参数2值为'.$p2;
+	}
+	$smarty ->registerPlugin('function','f_test','test');
+	{f_test p1='abc' p2='edf'}
+1.如果在模板里使用PHP内置函数
+{变量|PHP内置函数：参数2的参数值：参数三的参数值}
+2.使用registerPlugin方法注册自定义函数
+{函数名 参数=参数值 参数2=参数值 参数3=参数值}
+3.registerPlugin第一个参数的可选值包括function modifler.block等
+
+1.什么事Smarty的插件
+	Smarty的插件本质上是function函数
+2.Smarty插件差用类型
+   function 函数插件
+   modiflers 修饰插件
+   block functions区块函数插件
+3.如何来制作，使用插件
+  (1)使用registerPlugin方法注册写好的自定义函数
+  (2) 将写好的插件放入Smarty解压目录中的lib目录下的plugins目录里
+  (3)php的内置函数，可以自动以修饰符插件(变量调节器插件)的形式在模板里使用   
+自定义smarty插件
+ fuction smarty_function_test($params){//smarty_function_插件名
+	//$参数1 = $params['参数1']
+	//$参数2 = $params['参数2']
+	$width = $params['width'];
+	$height = $params['height'];
+	$area = $width*$height;
+	return $area;
+}
+
+modifier插件 变量调节器
+ 	function smarty_modifier_test($参数1,$参数2){
+		return date($参数1,参数2);
+	}
+
+bolck插件的使用
+block.test.php
+function smarty_block_test($params,$content){
+	$replace = $params['replace'];
+	$maxnum = $params['maxnum'];
+	if($replace == 'true'){
+		$content = str_replace(',',',',$content);
+		$content = str_replace('.','.',$content);
+	}
+	$content = substr($content,0,$maxnum);
+	return $content;
+}
+
+制作一个函数，简化第三方类调用过程。
+function ORG($path,$name,$params=array()){
+//path是路径
+//name是第三方类名，params是该类初始化的时候需要指定，赋值的属性，格式为array(属性名=>属性值,属性值名2=>属性值2)
+	require_once('libs/ORG/'.$path.$name.'.class.php');
+	$obj = new $name();
+	if(!empty($params)){
+		foreach($params as $key => $value){
+			$obj -> $key = $value;
+		}
+	}
+	return $obj;
+
+}
+
+$view =ORG('Smarty/','Smarty',array('left_delimiter'=>'{','right_delimiter'=>'}','template_dir'=>'tpl','compile_dir'=>'template_c'));
+//可以把配置放在配置文件，然后再包含配置文件。
+$view =ORG('Smarty/','Smarty',$view);
+
+综合实例制作目的
+1.强化模型(model)的介绍
+2.加深对MVC三层运作的理解
+3.扩展，整合，提升之前例子里的框架结构
+4.培养实际运用MVC理论研发的能力
+
+为什么不直接介绍成熟PHP框架
+1.容易思维僵化
+2.找共性
+3.授之与鱼不如授之以渔!
+
+<PHP与MySQL关系大揭秘>中的例子
+对于微型系统
+1.开发速度快
+2.迅速解决需求
+对于大中型系统
+1.代码冗余，重用率低
+2.PHP和HTML混杂在一起，尽管已经做了一定的分离
+3.相视功能没有有效的组织成统一的模块！
+4.可维护性差
+
+解决问题
+1.利用之前完成的MVC基本架构
+2.封装PHP对Mysql的操作，鸟枪换炮
+3.开始研发微型框架系统，封装视图引擎，DB引擎等
+4.对相视功能模块进行封装，一处编写多处调用。
+
+PHP操作Mysql类的封装
+封装目的
+1.减少代码冗余，提高开发速度
+2.降低编程错误
+3.便于维护升级
+
+简单工厂模式
+工厂模式是做什么的
+例如现在有mysql操作类和mssql操作类
+class factory{
+	static function creat($type){
+		return new $type;
+	}
+}
+$obj = facory::creat('mysql');
+好处：统一管理对象的实例化，便于扩展维护
+定义简单DB工厂类
+class DB{//类名在php里面是一个全局变量DB::$db;
+	public static $db;
+	public static function init($dbtype,$config){
+		self::$db = new $dbtype;
+		self::$db -> connect($config);
+	}
+
+	public static function query($sql){
+		return self::$db->query($sql);
+	}
+	
+	public static function findAll($sql){
+		$query = self::$db->query($sql);
+		return self::$db->findAll($query);
+	}	
+	
+		public static function findOne($sql){
+		$query = self::$db->query($sql);
+		return self::$db->findOne($query);
+
+	}
+
+	...............
+}
+
+微型框架编写
+框架组织结构
+	1.函数库
+	2.类库
+	   a.视图引擎库
+	   b.DB引擎库
+	   c.核心库
+	3.require文件清单
+	4.启动引擎
+
+罗列require清单
+	function/function.php
+	libs/core/DB.class.php
+	libs/core/VIEW.class.php
+	libs/db/mysql.class.php
+	libs/view/Smarty/Smarty.class.php
+编写启动引擎程序
+include.list.php
+<?php
+	$paths = array(
+		'function/function.php',
+		'libs/core/DB.class.php',
+		'libs/core/VIEW.class.php',
+		'libs/db/mysql.class.php',
+		'libs/view/Smarty/Smarty.class.php',
+	);
+?>
+
+pc.php
+<?php
+	$currentdir = dirname(__FILE__);
+	include_once($currentdir.'/include.list.php');
+	foreach($paths as $path){
+		include_once($currentdir.'/'.$path);
+	}
+
+	class PC{
+		public static $controller;
+		public static $method;
+		private static $config;
+		private static function init_db(){
+			DB::init('mysql',self::$config['dbconfig']);
+		}
+
+		private static function init_view(){
+			VIEW::init('Smarty',self::$config['viewconfig']);
+		}
+
+		private static function init_controller(){
+			self::$controller = isset($_GET['method']) ?
+daddslashes($_GET['controller']) : 'index';
+		}
+		
+		private static function init_method(){
+			self::$method = isset($_GET['method']) ?
+daddslashes($_GET['method']) : 'index';
+		}
+
+		public static function run($config){
+			self::$config = $config;
+			self::init_db();
+			self::init_view();
+			self::init_controller();
+			self::init_method();
+			C(self::$controller,self::$method);
+		}	
+	}
+
+入口文件与配置文件改进
+	入口文件
+	1.调用配置文件
+	2.调用微型框架
+	3.启动框架引擎
+	配置文件
+	1.数据库配置信息
+	2.视图引擎配置信息
+
+index.php
+<?php
+	header("Content-type:text/html;charset=utf-8");
+	session_start();
+	require_once('config.php');
+	require_once('framework/pc.php');
+	PC::run($config);
+?>
+
+config.php
+<?php
+	$config = arrray(
+		'viewconfig' => array(
+			'left_delimiter'=>'{','right_delimiter'=>'}',template_dir=>'tpl',complate_dir=>'data/template_c'),
+		'dbconfig'=> array(
+			'dbhost'=>'localhost','dbuser'=>'root','dbpsw'=>'123','dbname'=>'newsreport','dbcharset'=>'utf8')
+	);
+
+学习微框架的真正的意义
+	培养探索、钻研精神
+
+研发的原则
+	1.业务逻辑全进model层
+	2.大事化小，分而治之
+		a.过长，过复杂的方法要拆分成若干个方法
+		b.能公用的代码端要分出来单独写一个方法
+		c.拥有太多方法的model层等，可以独立出一个新的model层
+	3.相似功能合二为一
+		例如本例里的新闻发布,修改功能,模版,模型,控制器都用同一个
+

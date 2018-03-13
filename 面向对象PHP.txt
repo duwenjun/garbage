@@ -1,0 +1,93 @@
+面向对象的PHP
+OOP:Object Oriented	PHP
+对象
+继承
+重载
+静态属性和方法
+类常量  const 
+抽象类
+接口
+
+PHP高级特性
+	Senior features of 	PHP
+1.异常处理
+	-文件找不到
+	-数据库连接失败!
+	-URL接口访问失败!
+	-
+
+	die?太粗暴
+	return false?
+	-我们说好的，这函数是return array的
+	通过引用参数?
+
+	try{
+
+	}catch (HttpException $e){
+		//时刻准备着，处理他们都处理不了的问题
+	}catch (Exception $e){
+		//时刻准备着，处理他们都处理不了的问题
+	}finally{
+		//打扫战场，都收拾好了再走人
+	}
+
+开发工具PHP misiduomeng
+2.Traits
+	特性是个新特性
+	Trait is a now trait
+	1.trait 主要用于解决单继承引起的代码复用问题
+	2.在类中使用trait类似于include一个公寓文件
+	3.trait支持所有的修饰符
+	......
+
+3.预定义接口/生成器
+	1.Traversable
+	2.Iterator
+	3.IteratorAggregate
+	4.Venerator
+	5.ArrayAccess
+	......
+	生成器关键字yield
+4.PHP的魔术方法
+	__construct()
+	__destruct()
+	__call()
+	__callStatic()
+	__get()
+	__set()
+	__isset()
+	__unset()
+	__sleep()
+	__wakeup()
+	__toString()
+	__invoke()
+	__set_state()
+	__clone
+5.回调函数，匿名函数&闭包
+	callbacks
+	usort(array &$array, callback $compareFunc);
+	//直接传入函数名
+	usort($arr,'mySortFunc');
+	//调用实例的类中的方法
+	usort($arr,array($objectName,'mySortFunc'));
+	//调用类中的静态方法
+	usort($arr,array('objectName,'mySortFunc'));
+	//调用类中的静态方法
+	usort($arr,array('objectName::mySortFunc'));
+	
+	usort($arr,array('Child','parent::mySort'));
+	//创建一个函数
+	usort($arr,create_function('$a','$b','return $b - $a'));
+	//使用匿名函数
+	usort($arr,function($a,$b){'return $b - $a';});
+
+
+6.命名空间
+	魔术常量
+	__LINE__ = 该常量所在的行号
+	__FILE__ = 该常量所在代码文件的文件的完整路径和文件名
+	__DIR__ = 该常量所在代码文件的目录绝对路径
+	__CLASS__ = 类名
+7.自动加载
+8.反射
+9.综合实例

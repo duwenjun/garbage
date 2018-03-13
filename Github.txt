@@ -1,0 +1,28 @@
+windows  www.github.com网站，单击for windows 下载 在安装
+
+Linux 安装  yum install Git
+复制你的github地址
+mkdir test
+cd test
+git clone https://github.com/duwenjun/dutest.git
+正克隆到test
+
+git status //命令查看状态，会提示你操作
+git add 文件  //增加
+git reset  文件  //撤销
+git commit 执行提交   会提示你填写提交日记 
+git push   发布您的本地提交
+
+解决冲突：
+Linux下如何解决冲突
+
+
+Windows下如何解决冲突
+github会提示你冲突，你需要手动修改，然后提交到服务器
+
+回到过去
+Linux 查看日志  git log
+复制commit ID号
+使用gitreset --hard ID号回到过去
+
+分支开发之分支合并

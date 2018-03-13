@@ -1,0 +1,140 @@
+			常见的几种实现
+1.以父ID实现的无限分类
+	使用递归算法。表中的一个字段id,一个字段pid(父id)
+这样可以根据WHERE id = pid来查出上一级内容，运用递归至顶层
+2.以全路径实现的无限分类
+  表中有一字段path：1，2，3 使用where path like '1，2，3，%' order by cpath asc查出它及其子类的列表
+用到的地方
+1.分类下拉列表
+2.子分类全路径导航link  
+
+无限分类递归实现
+	递归
+什么事递归？程序调用自身的编程技巧称为递归
+function getList($pad){
+	if($row){
+		getList($pid);
+	}
+	...
+	return $result;
+}
+
+1.$_GLOBALS[result]
+2.static $result
+3参数引用&
+如(1)
+	function deeploop(&$i = 1){
+		echo $i;
+		$i ++;
+		if($i < 10){
+		    deeploop($i);
+		}	
+	}
+   (2)
+	$i = 1;
+   	function deeploop(){
+		global $i;
+		echo $i;
+		$i ++;
+		if($i < 10){
+		    deeploop($i);
+		}	
+	}
+   (3)
+	function deeploop(){
+		static $i=1;
+		echo $i;
+		$i ++;
+		if($i < 10){
+		    deeploop($i);
+		}	
+	}
+
+	deeploop();
+	递归无限分类原理
+	每一个分类都需要记录它的父级id，当为顶级分类时，父级id为0.这样无论哪个分类，都可以用过父级id一层层的去查明它所有的
+父类，以便清楚知道它所属的何种分类。层级分类为几；
+	数据表设计
+字段		类型		null	默认	注释
+id		int(10)		否
+pid		int(11)		否		父ID
+catename	varchar(30)	否		分类名
+cateorder	int(11)		否	0	排序
+createtime	int(10)		否		创建时间
+
+include(db.inc.php);
+functionn getList($pid=0,&$result=array(),$spac=0){ 
+	$spac = $spac + 2;
+	$sql = "SELECT * FROM deepcate WHERE pid = $pdi";
+	$res = mysql_query($sql);
+	while($row = muysql_fetch_assoc($res)){
+	$row['catename']= str_repeat('&nbsp;',$spac)'|--'.$row['catename'];
+	$result[] = $row;
+	getList($row['id'],$result,$spac);	
+	}	
+}
+
+全路径导航栏
+	function getCatePath($cid,&result = array()){
+		$sql = "SELECT *　FROM deepcate WHERE id = $cid";
+		$rs = mysql_query($sql);
+		$row = mysql_fetch_assoc($rs);
+		if($row){
+			$result[] = $row;
+			getCatePath($row['pid']);
+		}
+		krsort($result);
+		return $result;
+	}
+	$res = getCatePath(10);
+
+移动分类(不能移动到自己及其子类下面)
+删除分类(只能删除最底层的分类，即不含子分类的分类)
+
+全路径无限分类原理的理解
+	以一个字段把它所有父级ID按顺序记录下来以此来实现的无限分类叫做全路径无限分类
+优点：查询方便
+缺点：增加，移动分类时数据维护稍显复杂
+原理：利用全路径字段(形如1，2，3，4，这样)加上ID组成新字段正须排列，然后再利用字段长度(以，分割)来计算层级深度
+
+代码实现：
+	include('db.inc.php');
+	function likecate($path = ''){
+	$sql = "SELECT id,catename,path,concat(path,',',id) as fullpath FROM likecate ORDER BY fullppath asc";
+	$res = mysql_query($sql);
+	$result = array();
+	while($row = mysql_fetch_assoc($res)){
+		$deep = count(explode(',',ltrim($row['fullpath'],',')));
+		$row['catename'] = str_repeat('&nbsp;&nbsp',$deep).'|--'.$row['catename'];
+		$result[] = $row;
+	}
+	return $result;
+	}
+	$res = likecate();
+
+function getPathCate($cateid){
+	$sql = "SELECT *,concat(path,',',id) as fullpath FROM likecate WHERE id = $catid";
+	$res = mysql_query($sql);
+	$row = mysql_fetch_assoc($res);
+	$ids = row['fullpath'];
+	$sql = "SELECT * FROM likecae WHERE id in($ids) order by id asc";
+	$res = mysql_query($sql);
+	$result = array();
+	while($row = mysql_fetch_assoc($res)){
+		$result[] = $row;
+	}
+	return $result;
+}
+
+//封装成函数
+function displayCatePath($cateid,$link = 'cate.php?cid='){
+	$res = getPathCate(4);
+	$str = '';
+	foreach($res as $k=>$v){
+	$str .= "<a href='$link'>{$v['catename']}</a>";
+	}
+	return $str;
+}
+
+echo displayCatePath(4);
+

@@ -1,0 +1,76 @@
+一：准备环境 centos6.5
+1：联网
+设置ip地址。注意如果要联网要使用自动获取ip模式
+DEVICE=eth0
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=dhcp
+2：关闭防火墙
+暂时关闭   service iptables stop
+永久关闭   chkconfig iptables off
+查看状态   chkconfig iptables --list
+修改主机名： 
+vi /etc/sysconfig/network
+vi /etc/hosts
+
+3：关闭selinux
+vi  /etc/selinux/config
+SELINUX=disabled
+
+4：重启系统
+shutdown -r now
+5:上传lamp环境源码包
+
+5、关闭不必要自启动服务
+ntsysv
+
+以下列出服务可保持自启动，未列出的服务都可以关闭：
+atd    
+crond        # atd、crond计划任务
+irqbalance
+microcode_ctl   # 系统irq端口调用，系统服务
+network    #网络设置
+sendmail   #邮件
+sshd      #远程管理
+syslog    #系统日志
+
+6：（准备好安装包）
+1.把lamp安装包上传到服务器，并且改名为lamp：方便
+2.cd 到lamp编写解压缩脚本
+tar.sh
+#!/bin/bash
+/bin/ls *.tar.gz > ls.list
+/bin/ls *.tgz >> ls.list
+        for TAR in `cat ls.list`
+ do
+                /bin/tar -zxf $TAR
+ done
+/bin/rm ls.list 
+
+3. 执行脚本sh tar.sh批量解压缩
+
+二、编译安装
+
+ # 安装jpeg6（重要）			
+用于解码.jpg和.jpeg图片
+mkdir /usr/local/jpeg6	
+ mkdir /usr/local/jpeg6/bin
+ mkdir /usr/local/jpeg6/lib1
+ mkdir /usr/local/jpeg6/include
+ mkdir -p /usr/local/jpeg6/man/man1
+#目录必须手工建立
+ cd /lamp/jpeg-6b
+ ./configure --prefix=/usr/local/jpeg6/ --enable-shared --enable-static
+ make	
+ make install
+ * --enable-shared与--enable-static参数分别为建立共享库和静态库使用的libtool
+安装没有成功
+
+apache没有编译成功
+
+mysql没有设置好密码
+
+php因为没有安装好apache出错
+
+~                     

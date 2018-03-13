@@ -1,0 +1,51 @@
+用户相关
+
+  malling_user：前端商城系统的用户，用户名、密码等
+
+  malling_user_delivery_address，用户的收获地址，一个用户可以有多个收获地址
+
+  malling_admin_user：后端系统的用户，与前端系统没有关系
+
+  malling_admin_role：后端系统用户的角色，超级管理员、管理员等
+
+  malling_admin_user_role：后端系统用户和角色的关联
+
+账务相关
+  malling_account：用户的资金账户，账户号、可用余额、冻结余额等
+
+  malling_account_internal：内部专用账户
+
+ malling_account_log：资金变动日志，一次交易，两笔资金变动（思路还有点混乱）
+
+ malling_account_freeze_log：提现等产生的冻结日志
+
+ malling_accoount_trans_log：交易日志
+
+ malling_recharge：用户的充值记录
+
+ malling_receive_payment：充值之后，银行或第三方支付返回信息
+
+ malling_withdraw：用户的提现记录
+
+购物相关 
+
+ malling_goods：商品，商品号、名称、标题、价格等
+
+ malling_goods_category：商品所属分类，分类号、名称、上级分类号等
+
+malling_goods_comment：商品的评论，购买过某个商品的用户才可以对这件商品进行评论
+
+malling_orders：订单，订单号、所属用户、总价格、支付方式等
+
+malling_orders_item：订单项，一个订单可以有多个订单项，订单号、所属用户、商品ID、商品数量、总价格、商品单价
+
+日志相关 
+
+malling_op_log：操作日志，比如审核订单之类的操作
+
+malling_search_log：前端用户搜索商品产生
+
+malling_login_log：用户登录日志，包括前端和后端
+
+其它
+malling_sequence：序列号，用来手动生成 账户号、订单号等有业务含义的ID

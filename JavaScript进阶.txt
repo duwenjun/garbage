@@ -1,0 +1,342 @@
+1.数据类型
+	1.六种数据类型
+	    原始类型：number
+		      string
+		      boolean
+		      null		
+		      undefined
+		      object 对象｛
+				a.function
+				b.Array
+				c.Date	
+				｝
+	2.隐式转换
+		var x = 'The answer is'+ 42; //会当作字符串连接
+		可以巧用这个隐式转换原理
+			把字符串转换为数字可以   num - 0
+			把数字转换字符串可以     num + ''
+		"1.23" == 1.23
+		 0 == false
+		null == undefined
+		new Object() == new Object()
+		[1,2] == [1,2]
+	 ===全等于 类型相同
+	null === null
+	undefined === undefined
+	NaN !== NaN
+	new Object !== new Object
+	类型不同，尝试类型转换和比较：
+	null == undefined相等
+	number == string 转 number 1 == "1.0" //true
+	boolean == ? 转number 1==true //true
+	object == number|string 尝试对象转为基本类型 new String("hi") == 'hi' //true
+
+	类型检测
+	typeof
+	instanceof
+	Object.prototype.toString
+	constructor
+	duck type
+		typeof 100 "number"
+		typeof true "boolean"
+		typeof function "function"
+		typeof (undefined) "undefined"
+		typeof new Object() "object"
+		typeof [1,2] 		"object"
+		typeof NaN 			"number"
+		typeof null			"object"
+
+		obj instanceof Object
+		[1,2] instanceof Array === true
+		new Object() instanceof Array === false
+		任何一个对象都会有一个prototype
+
+		Object.prototype.toString.apply([]); == "[object Array]";
+		Object.prototype.toString.apply(function(){}); == "[object Function]";
+		Object.prototype.toString.apply(null); == "[object Null]";
+		Object.prototype.toString.apply(undefined); == "[object Undefined]";
+
+		constructor
+		duck type
+	类型检测小结
+		typeof
+		适合基本类型及function检测，遇到null失效。
+		[[Class]]
+		通过{}.toString拿到，适合内置对象和基本类型，遇到null和undefined失效（IE6/7/8等返回[object Object]）
+		instanceof
+		适合自定义对象，也可以用来检测原生对象，在不用iframe和window间检测时失效。
+
+	表达式：
+		表达式是指能计算出值得任何可用程序单元 --wiki
+		表达式是一种JS短语，可使JS解释器用来产生一个值 --JS权威指南
+		原始表达式		a.常量，直接量 3.14 "test"
+						b.关键字 null this true
+						c.变量	 a b c 
+		符合表达式
+			10 * 20 
+		函数表达式
+			var fe = function(){};
+			(function(){console.log('hello world');})();
+		属性访问表达式
+			var o = {x:1};
+			o.x
+			o['x']
+		调用表达式
+			foo('1');
+		对象创建表达式
+			new Func(1,2);
+			new Object;
+
+	表达式：
+		1.原始表达式
+		2.初始化表达式
+		3.函数表达式
+		4.属性访问表达式
+		5.调用表达式
+		6.对象创建表达式
+	运算符
+		一元： + num
+		二元   a + b
+		三元   c ? a : b
+
+		赋值  x += 1
+		比较  a == b
+		算术  a - b 
+		位 	  a | b
+		逻辑  exp1 && exp2
+		字符串 "a" = "b"
+		特殊 delete obj.x
+		c ? a : b
+		var val = true ? 1 : 2; //val = 1;
+		var val = (1,2,3) //val = 3;
+		delete obj.x;
+		var obj = {x:1}
+		delete obj.x;
+		window.x = 1;
+		    -- "x" in window; //true
+		 {} instanceof Object //true
+		 typeof 100 === 'number' //true
+		 function Foo(){}
+		 Foo.prototype.x = 1;
+		 var obj = new Foo();
+		 obj.x; //1
+		 obj.hasOwnProperty('x'); //false
+		 obj.__proto__.hasOwnProperty('x'); //true
+
+		 this; //window(浏览器)
+		 var obj = {
+		 	 func:function(){return this;}
+		 };
+		 obj.func(); //obj
+
+		 void
+		 	void 0 //undefined
+		 	void(0) //undefined
+
+		条件运算符 c ? a : b
+		逗号运算符 a,b
+		delete     delete obj.x
+		in 			"document" in window
+		instanceof  obj instanceof Func
+		new 		new ClsName()
+		this 		return this
+		typeof 		typeof 100
+		void 		void 0
+
+	语句 Statement
+		JavaScript程序由语句组成，语句遵守特定的语法规则
+			例如： if语句，while语句，with语句等等
+
+		块 block
+			块语句常用语组合0 ~ 多个语句，块语句用一对花括号定义。
+			语法：
+			{
+				语句1;
+				语句2;
+				...
+				语句n;
+			}
+
+			{
+				var str = "hi";
+				console.log(str);
+			}
+
+			if(true){
+				console.log("hi");
+			}
+
+			注意:
+				{a:1,b:2} //SyntaxError:Unexpected token;
+				var o = {a:1,b:2} //ok
+				没有块级作用域,如下两个作用域是一样的
+				for(var i=0;i<10;i++){
+					var str = "hi";
+					console.log(str);
+				}
+				==
+				var i = 0;
+				for(,i<10,i++){
+					var str = "hi";
+					console.log(str);
+				}
+
+		var 定义语句
+			var a = 1;
+			var a = b = 1;   
+			function foo(){
+				var a = b = 1;
+			}		
+			foo();
+			console.log(typeof a); //'undefined'
+			console.log(typeof b); //'number'
+			正确的方法是 var a = 1,b = 1;
+
+	异样处理
+		try catch
+		try{
+			throw "test";
+		}catch(ex){
+			console.log(ex); //test
+		}finally{
+			console.log('finally');
+		}
+
+		try{
+			try{
+				throw new Error('oops');
+			}
+			finally{
+				console.log("finally");
+			}
+		}
+		catch(ex){
+			console.error('outer',ex.message);
+		}
+		//结果   "finally"   "outer"  "oops"
+
+		try{
+			try{
+				throw new Error('oops');
+			}
+			catch(ex){
+				console.error("inner",ex.message);
+			}
+			finally{
+				console.log("finally");
+			}
+		}
+		catch(ex){
+			console.log("outer",ex.message);
+		}
+
+		//执行结果"liner" "oops" "finally"
+
+		try{
+			try{
+				throw new Error("oops");
+			}
+			catch(ex){
+				console.error("inner",ex.message);
+				throw ex;
+			}
+			finally{
+				console.log("finally");
+			}
+		}
+		catch(ex){
+			console.error("outer",ex.message);
+		}
+
+		//执行结果 "inner" "oops" "finally" "outer" "oops"
+
+	函数 switch 循环
+		函数
+		fd(); //true
+		function fd(){
+			//do sth
+			return true;
+		}
+		fe() //TypeError
+		var	fe = function (){
+			//code
+		};	
+
+		for-in
+			var p;
+			var obj = {x:1,y:2};
+			for(p in obj){
+
+			}
+		问题1.顺序不确定
+			2.enumerable为false时不会出现
+			3.for in 对象属性时受原型链影响
+
+		switch
+		var  val = 2;
+		switch(val){
+			case 1:
+				console.log(1);
+				break;
+			case 1:
+				console.log(2);
+				break;
+			default:
+				console.log(0);
+				break;
+		}
+		switch(val){
+			case 1:
+				console.log(1);
+			case 2:
+				console.log(2);
+			default:
+				console.log(1);
+		}
+
+	循环
+		1:while(isTrue){
+			//code
+		}
+		2:do{
+			//code
+		}while(isTrue)
+		3:
+			var i;
+			for(i=0;i<n;i++){
+				//code
+			}
+
+		with({x:1}){
+			console.log(x);
+		}
+		with(document.forms[0]){
+			console.log(name.value);
+		}
+		//不建议使用with上面的方法可以用下面的代替
+		var form = document.forms[0];
+		console.log(form.name.value);
+
+	严格模式
+		严格模式是一种特殊的执行模式，他修复了部分语言上的不足，提供更强的错误检查，并增强安全性。
+
+		function func(){
+			'use strict';
+		}
+
+		'use strict';
+		function func(){
+
+		}
+
+	严格模式和普通模式的差别
+		1.不允许用with
+		2.不允许未声明的变量被赋值
+		3.arguments变为参数的静态副本
+		4.delete参数，函数名报错
+		5.delete不可配置的属性报错
+		6.对象字面量重复属性名报错
+		7.禁止八进制的字面量
+		8.eavl，arguments变为关键字，不能作为变量，函数名
+		9.eval独立作用域
+
